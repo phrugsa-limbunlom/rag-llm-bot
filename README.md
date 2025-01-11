@@ -1,4 +1,4 @@
-# LLM-CHATBOT-WITH-RAG
+# RAG-LLM-BOT
 
 Create a LLM chatbot using llama model with Groq API and langchain. Leverage the chatbot ability with RAG system.
 
