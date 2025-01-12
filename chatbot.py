@@ -1,6 +1,7 @@
 import json
 import os
-
+from flask import Flask, request, jsonify, app
+from flask_cors import CORS
 import yaml
 from dotenv import load_dotenv
 from groq import Groq
@@ -9,6 +10,10 @@ from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
+app = Flask(__name__)
+
+# Allow CORS for all routes
+CORS(app)
 
 # Groq API
 def query_groq_api(prompt):
@@ -53,18 +58,29 @@ def load_model(file_path):
         data = yaml.safe_load(file)
         return data
 
-# chatbot interaction
-def chatbot():
-    print("Welcome to AI Chatbot. Type 'exit' to quit.")
-    while True:
-        query = input("\nUser: ")
-        if query.lower() == 'exit':
-            break
+# # chatbot interaction
+# def chatbot():
+#     print("Welcome to AI Chatbot. Type 'exit' to quit.")
+#     while True:
+#         query = input("\nUser: ")
+#         if query.lower() == 'exit':
+#             break
+#
+#         # Get response using RAG and Groq API
+#         result = generate_answer(query)
+#         print("\nBot:", result)
 
-        # Get response using RAG and Groq API
-        result = generate_answer(query)
-        print("\nBot:", result)
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_input = request.json.get("query")
+    if not user_input:
+        return jsonify({"error": "Query not provided"}), 400
 
+    try:
+        response = generate_answer(user_input)
+        return jsonify({"response": response})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     load_dotenv('.env')
@@ -95,4 +111,7 @@ if __name__ == "__main__":
         template=template
     )
 
-    chatbot()
+    # chatbot()
+
+    # Run Flask app
+    app.run(host="0.0.0.0", port=5000)
