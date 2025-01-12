@@ -1,0 +1,35 @@
+.App {
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+textarea {
+  width: 80%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #6c757d;
+}
+
+button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.App-header {
+  margin-top: 50px;
+}
