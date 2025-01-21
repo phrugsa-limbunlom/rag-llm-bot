@@ -1,0 +1,130 @@
+Product: HP Spectre x360 14 (2024)
+
+Specifications:
+Display: 13.5" 3K2K OLED Touch
+Operating System: Windows 11 Home
+Processor: Intel Core Ultra 7 155H
+Memory: Up to 32GB RAM
+Storage: Up to 2TB PCIe NVMe SSD
+
+Key Features:
+2-in-1 convertible design
+AI-powered with NPU
+Long battery life
+USB-C charging
+
+Additional Information:
+Model Number: Spectre x360 14 (2024)
+Brand: HP
+Type: Premium 2-in-1 Laptop
+Warranty: Please check with HP for warranty details
+
+
+Product: HP Pavilion Aero 13 (2024)
+
+Specifications:
+Display: 13.3" FHD+ or QHD+ IPS
+Operating System: Windows 11 Home
+Processor: AMD Zen 4 Ryzen
+Memory: 8GB RAM (configurable)
+Storage: 256GB SSD (configurable)
+
+Key Features:
+Ultraportable design
+1440p webcam with facial recognition
+Long battery life (around 10 hours)
+USB-C charging
+
+Additional Information:
+Model Number: Pavilion Aero 13 (2024)
+Brand: HP
+Type: Ultraportable Laptop
+Warranty: Please check with HP for warranty details
+
+Product: HP EliteBook X G1i 14-inch Notebook Next-Gen AI PC
+
+Specifications:
+Display: 14" (details not provided)
+Operating System: Windows 11 Pro
+Processor: Intel Core Ultra 5 or 7
+Memory: Not specified
+Storage: Not specified
+
+Key Features:
+AI-powered with up to 48 TOPS of NPU performance
+Innovative thermal design
+10% quieter operation
+Enhanced productivity features
+
+Additional Information:
+Model Number: EliteBook X G1i
+Brand: HP
+Type: Business Laptop
+Warranty: Please check with HP for warranty details
+
+Product: HP EliteBook X Flip G1i 14-inch Notebook Next-Gen AI PC
+
+Specifications:
+Display: 14" (details not provided)
+Operating System: Windows 11 Pro
+Processor: Intel Core Ultra 5 or 7
+Memory: Not specified
+Storage: Not specified
+
+Key Features:
+2-in-1 convertible design
+AI-powered with up to 48 TOPS of NPU performance
+Available in atmospheric blue and glacier silver
+Compatible with HP Rechargeable Active Pen
+
+Additional Information:
+Model Number: EliteBook X Flip G1i
+Brand: HP
+Type: Business 2-in-1 Laptop
+Warranty: Please check with HP for warranty details
+
+Product: HP ZBook Ultra
+
+Specifications:
+Display: 14" (details not provided)
+Operating System: Windows 11 Pro
+Processor: AMD Ryzen AI Max PRO
+Memory: Up to 128GB unified memory
+Storage: Not specified
+
+Key Features:
+World's most powerful 14-inch mobile workstation
+Up to 16 desktop-class CPU cores
+Discrete-like integrated graphics
+AI-enhanced privacy features
+
+Additional Information:
+Model Number: ZBook Ultra
+Brand: HP
+Type: Mobile Workstation
+Warranty: Please check with HP for warranty details
+
+Product Name: Acer Predator Helios 300
+
+Specifications:
+
+Display: 15.6" Full HD IPS, 144Hz refresh rate
+Operating System: Windows 11 Home
+Processor: Intel Core i7-12700H (12 cores, up to 4.7GHz)
+Memory: 16GB DDR4 RAM
+Storage: 512GB PCIe NVMe SSD
+Graphics: NVIDIA GeForce RTX 3060
+Battery Life: Up to 7 hours of usage
+Key Features:
+
+High-performance gaming laptop with a powerful Intel Core i7 processor and NVIDIA RTX graphics.
+144Hz display for smooth gaming performance.
+Cooling system designed for extended gaming sessions.
+Great for both gaming and programming tasks.
+Additional Information:
+
+Model Number: PH315-53-71QJ
+Brand: Acer
+Type: Gaming Laptop
+Price: $999
+Warranty: 1-year limited warranty
