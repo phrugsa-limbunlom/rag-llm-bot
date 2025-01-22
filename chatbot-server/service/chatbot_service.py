@@ -4,7 +4,7 @@ import requests.exceptions
 from dotenv import load_dotenv
 from groq import Groq
 from langchain_chroma import Chroma
-from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader, WebBaseLoader
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -76,10 +76,25 @@ class ChatbotService:
 
         persistent_directory = os.path.join(current_dir, "../", "db", "chroma_db")
 
+        # amazon
+        persistent_directory_amazon = os.path.join(current_dir, "../", "db", "chroma_db_amazon")
+
+        urls = ["https://www.amazon.co.uk/"]
+
+        loader = WebBaseLoader(urls)
+        documents = loader.load()
+
         # embedding
         print("Creating Embedding")
         embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
         print("Finish creating Embedding")
+
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        docs = text_splitter.split_documents(documents)
+        print("Creating vector store from Amazon")
+        Chroma.from_documents(docs, embeddings, persist_directory=persistent_directory_amazon)
+        print("Finish creating vector store from Amazon")
+        # end amazon
 
         if not os.path.exists(persistent_directory):
             print("The vector store does not exist. Initializing vector store...")
@@ -87,7 +102,7 @@ class ChatbotService:
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"The {file_path} does not exist")
 
-            # load document
+            # load document from text
             loader = TextLoader(file_path)
             documents = loader.load()
 
@@ -109,9 +124,58 @@ class ChatbotService:
         print("Loading the existing vector store")
         vector_store = Chroma(persist_directory=persistent_directory, embedding_function=embeddings)
 
+        # load the existing vector store from Amazon
+        print("Loading the existing vector store from Amazon")
+        vector_store = Chroma(persist_directory=persistent_directory_amazon, embedding_function=embeddings)
+
         vector_retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",
             search_kwargs={"k": 3, "score_threshold": 0.1}
+        )
+
+        return vector_retriever
+
+    def load_vector_store_from_Amazon(self, embedding_model):
+        # create vector store if no vector store exists
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        persistent_directory_amazon = os.path.join(current_dir, "../", "db", "chroma_db_amazon")
+
+        # embedding
+        print("Creating Embedding")
+        embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
+        print("Finish creating Embedding")
+
+        if not os.path.exists(persistent_directory_amazon):
+            print("The vector store does not exist. Initializing vector store...")
+
+            # load document from amazon
+            urls = ["https://www.amazon.co.uk/"]
+
+            loader = WebBaseLoader(urls)
+            documents = loader.load()
+
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+            docs = text_splitter.split_documents(documents)
+
+            print(f"Number of chunks: {len(docs)}")
+            print(f"Sample chunk:\n{docs[0].page_content}\n")
+
+            # create the vector store and save it to directory
+            print("Creating vector store")
+            Chroma.from_documents(docs, embeddings, persist_directory=persistent_directory_amazon)
+            print("Finish creating vector store")
+
+        else:
+            print("The vector store already exists. No need to Initialize")
+
+        # load the existing vector store from Amazon
+        print("Loading the existing vector store from Amazon")
+        vector_store = Chroma(persist_directory=persistent_directory_amazon, embedding_function=embeddings)
+
+        vector_retriever = vector_store.as_retriever(
+            search_type="similarity_score_threshold",
+            search_kwargs={"k": 3, "score_threshold": 0.4}
         )
 
         return vector_retriever
@@ -134,7 +198,8 @@ class ChatbotService:
         embedding_model = model_list["EMBEDDING"]
 
         # vector store
-        self.retriever = self.load_vector_store(embedding_model)
+        # self.retriever = self.load_vector_store(embedding_model)
+        self.retriever = self.load_vector_store_from_Amazon(embedding_model)
 
 
 def chatbot():
