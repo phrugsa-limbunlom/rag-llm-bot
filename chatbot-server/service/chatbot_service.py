@@ -140,8 +140,3 @@ def chatbot():
 
         result = service.generate_answer(query=query)
         print("\nBot:", result)
-
-
-if __name__ == "__main__":
-    # chatbot interaction for debugging purpose
-    chatbot()
