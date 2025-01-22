@@ -1,26 +1,40 @@
-import React, {useState} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
 function App() {
-    const [query, setQuery] = useState("");
-    const [response, setResponse] = useState("");
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(scrollToBottom, [messages]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!input.trim()) return;
+
+        const userMessage = { text: input, sender: "user" };
+        setMessages((prevMessages) => [...prevMessages, userMessage]);
+        setInput("");
         setLoading(true);
-        setError("");
-        setResponse("");
 
         try {
             const res = await axios.post("http://127.0.0.1:5000/chat", {
-                query,
+                query: input,
             });
-            setResponse(res.data.response);
+            const botMessage = { text: res.data.response, sender: "bot" };
+            setMessages((prevMessages) => [...prevMessages, botMessage]);
         } catch (err) {
-            setError(err.response?.data?.error || "An error occurred.");
+            const errorMessage = {
+                text: err.response?.data?.error || "An error occurred.",
+                sender: "error",
+            };
+            setMessages((prevMessages) => [...prevMessages, errorMessage]);
         } finally {
             setLoading(false);
         }
@@ -29,34 +43,39 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <h1>AI Chatbot</h1>
-                {response && (
-                    <div>
-                        <h3>Bot Response:</h3>
-                        <p>{response}</p>
-                    </div>
-                )}
-                {error && (
-                    <div style={{color: "red"}}>
-                        <h3>Error:</h3>
-                        <p>{error}</p>
-                    </div>
-                )}
-                <form onSubmit={handleSubmit} style={{marginBottom: "20px"}}>
-          <textarea
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Type your query here..."
-              rows="4"
-              cols="50"
-              required
-          />
-                    <br/>
+                <h1>PickSmart: AI-Powered Product Search</h1>
+            </header>
+            <div className="chat-container">
+                <div className="messages">
+                    {messages.map((message, index) => (
+                        <div key={index} className={`message ${message.sender}`}>
+                            {message.text}
+                        </div>
+                    ))}
+                    {loading && (
+                        <div className="message bot">
+                            <div className="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+                <form onSubmit={handleSubmit} className="input-form">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Type your message..."
+                        disabled={loading}
+                    />
                     <button type="submit" disabled={loading}>
-                        {loading ? "Loading..." : "Send"}
+                        Send
                     </button>
                 </form>
-            </header>
+            </div>
         </div>
     );
 }
