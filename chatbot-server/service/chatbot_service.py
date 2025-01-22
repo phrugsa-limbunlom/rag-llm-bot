@@ -8,7 +8,7 @@ from langchain_community.document_loaders import TextLoader
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from util.prompt_message import PromptMessage
+from prompt.prompt_message import PromptMessage
 from util.util import Util
 
 
