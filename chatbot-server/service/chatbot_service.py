@@ -47,17 +47,27 @@ class ChatbotService:
     def generate_answer(self, query):
         """Generate an answer using RAG and the Groq API."""
 
-        # retrieve context from the vector store from query
+        if not self.is_query_relevant(query):
+            return PromptMessage.Default_Message
+
         results = self.retriever.invoke(query)
 
-        # answer by prompt template
         context = " ".join([doc.page_content for doc in results])
         prompt = self.template.invoke({"context": context, "query": query}).to_string()
 
-        # get the answer from the Groq API
         answer = self.query_groq_api(client=self.client, prompt=prompt, model=self.llm_model)
 
         return answer
+
+    def is_query_relevant(self, query):
+        """Check if the query is relevant to the prompt template using the model."""
+
+        relevance_prompt = (
+            f"This is prompt template : \"{self.template}\". Evaluate whether the following query is relevant to the prompt template: \"{query}\". Respond only one word 'relevant' or 'irrelevant'.")
+
+        relevance_response = self.query_groq_api(client=self.client, prompt=relevance_prompt, model=self.llm_model)
+
+        return relevance_response == "relevant"
 
     def load_vector_store(self, embedding_model):
         # create vector store if no vector store exists
@@ -109,7 +119,7 @@ class ChatbotService:
     def initialize_service(self):
         print("Initialize the service")
 
-        load_dotenv('../chatbot-server/.env')
+        load_dotenv('./.env')
 
         self.template = ChatPromptTemplate.from_messages(
             [PromptMessage.System_Message, PromptMessage.Human_Message, PromptMessage.AI_Message])
@@ -118,7 +128,7 @@ class ChatbotService:
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
         # model
-        model_list = Util.load_yaml('../chatbot-server/model.yaml')
+        model_list = Util.load_yaml('./model.yaml')
 
         self.llm_model = model_list["LLM"]
         embedding_model = model_list["EMBEDDING"]
