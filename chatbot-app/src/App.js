@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {useState, useRef, useEffect} from "react";
 import axios from "axios";
 import "./App.css";
 
@@ -9,7 +9,7 @@ function App() {
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
     };
 
     useEffect(scrollToBottom, [messages]);
@@ -18,16 +18,17 @@ function App() {
         e.preventDefault();
         if (!input.trim()) return;
 
-        const userMessage = { text: input, sender: "user" };
+        const userMessage = {text: input, sender: "user"};
         setMessages((prevMessages) => [...prevMessages, userMessage]);
         setInput("");
         setLoading(true);
 
         try {
-            const res = await axios.post("http://127.0.0.1:5000/chat", {
-                query: input,
+            const res = await axios.post("http://localhost:8000/ws/chat", {
+                user: "user",
+                message: input,
             });
-            const botMessage = { text: res.data.response, sender: "bot" };
+            const botMessage = {text: res.data.response, sender: "bot"};
             setMessages((prevMessages) => [...prevMessages, botMessage]);
         } catch (err) {
             const errorMessage = {
@@ -61,7 +62,7 @@ function App() {
                             </div>
                         </div>
                     )}
-                    <div ref={messagesEndRef} />
+                    <div ref={messagesEndRef}/>
                 </div>
                 <form onSubmit={handleSubmit} className="input-form">
                     <input

@@ -1,0 +1,14 @@
+fastapi[all]
+uvicorn
+pydantic
+httpx
+requests
+python-dotenv
+groq
+langchain-chroma
+langchain-community
+langchain-core
+langchain-huggingface
+langchain-text-splitters
+kafka-python==1.4.7
+kafka

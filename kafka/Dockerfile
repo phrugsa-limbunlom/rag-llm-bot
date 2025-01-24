@@ -1,0 +1,12 @@
+FROM wurstmeister/kafka:latest
+
+ENV KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+ENV KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+ENV KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+ENV KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+ENV KAFKA_BROKER_ID=1
+ENV KAFKA_LOG_DIRS=/var/lib/kafka/data
+
+COPY config/server.properties /etc/kafka/server.properties
+
+CMD ["start-kafka.sh"]
