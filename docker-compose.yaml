@@ -1,3 +1,48 @@
+#services:
+#  zookeeper:
+#    image: bitnami/zookeeper:latest
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      - ALLOW_ANONYMOUS_LOGIN=yes
+#
+#  kafka:
+#    build:
+#      context: ./kafka
+#      dockerfile: Dockerfile
+#    ports:
+#      - "9092:9092"
+#    volumes:
+#      - ./kafka/config/server.properties:/etc/kafka/server.properties
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+#      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_LOG_DIRS: /var/lib/kafka/data
+#
+#  fastapi:
+#    build:
+#      context: ./chatbot-server
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - kafka
+#
+#  react:
+#    build:
+#      context: ./chatbot-app
+#      dockerfile: Dockerfile
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - fastapi
+
+
+version: '3.8'
+
 services:
   zookeeper:
     image: bitnami/zookeeper:latest
@@ -5,22 +50,26 @@ services:
       - "2181:2181"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - kafka-network
 
   kafka:
-    build:
-      context: ./kafka
-      dockerfile: Dockerfile
+    image: bitnami/kafka:latest  # Use official image instead of custom build
     ports:
       - "9092:9092"
-    volumes:
-      - ./kafka/config/server.properties:/etc/kafka/server.properties
+      - "9093:9093"  # For external access
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka-network
 
   fastapi:
     build:
@@ -28,8 +77,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"  # Internal Docker communication
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-network
 
   react:
     build:
@@ -39,3 +93,18 @@ services:
       - "3000:3000"
     depends_on:
       - fastapi
+    networks:
+      - kafka-network
+
+networks:
+  kafka-network:
+    driver: bridge
+
+## Add healthcheck for Kafka
+#  kafka:
+#    # ... (existing config)
+#    healthcheck:
+#      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10

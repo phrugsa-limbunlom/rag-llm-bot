@@ -27,40 +27,80 @@ CHAT_TOPIC = 'chatbot_messages'
 RESPONSE_TOPIC = 'chatbot_responses'
 
 
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     print("Initializing Chatbot Service...")
+#     service = ChatbotService()
+#     service.initialize_service()
+#
+#     print("Initializing Kafka producer and consumer...")
+#     producer = AIOKafkaProducer(
+#         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+#         value_serializer=lambda v: json.dumps(v).encode('utf-8')
+#     )
+#     await producer.start()
+#
+#     consumer = AIOKafkaConsumer(
+#         RESPONSE_TOPIC,
+#         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+#         group_id='chatbot_response_group',
+#         auto_offset_reset='earliest',
+#         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+#     )
+#
+#     await consumer.start()
+#
+#     # make producer and consumer available in the app state
+#     app.state.producer = producer
+#     app.state.consumer = consumer
+#
+#     yield  # mark the point where the app runs
+#
+#     # shutdown
+#     print("Closing Kafka producer and consumer...")
+#     producer.close()
+#     consumer.close()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Initializing Chatbot Service...")
-    service = ChatbotService()
-    service.initialize_service()
+    producer = None
+    consumer = None
+    try:
+        print("Initializing Chatbot Service...")
+        service = ChatbotService()
+        service.initialize_service()
 
-    print("Initializing Kafka producer and consumer...")
-    producer = AIOKafkaProducer(
-        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
-    )
-    await producer.start()
+        print("Initializing Kafka producer and consumer...")
+        # Initialize producer
+        producer = AIOKafkaProducer(
+            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        )
+        await producer.start()
 
-    consumer = AIOKafkaConsumer(
-        RESPONSE_TOPIC,
-        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        group_id='chatbot_response_group',
-        auto_offset_reset='earliest',
-        value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-    )
+        # Initialize consumer
+        consumer = AIOKafkaConsumer(
+            RESPONSE_TOPIC,
+            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+            group_id='chatbot_response_group',
+            auto_offset_reset='earliest',
+            value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+        )
+        await consumer.start()
 
-    await consumer.start()
+        # Store in app state
+        app.state.producer = producer
+        app.state.consumer = consumer
 
-    # make producer and consumer available in the app state
-    app.state.producer = producer
-    app.state.consumer = consumer
+        yield  # App runs here
 
-    yield  # mark the point where the app runs
-
-    # shutdown
-    print("Closing Kafka producer and consumer...")
-    producer.close()
-    consumer.close()
-
+    finally:
+        print("Closing Kafka producer and consumer...")
+        # Proper async cleanup
+        if producer:
+            await producer.stop()
+        if consumer:
+            await consumer.stop()
 
 app = FastAPI(lifespan=lifespan)
 
