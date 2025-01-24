@@ -24,7 +24,7 @@ function App() {
         setLoading(true);
 
         try {
-            const res = await axios.post("http://localhost:8000/ws/chat", {
+            const res = await axios.post("http://localhost:8000/api/chat", {
                 user: "user",
                 message: input,
             });
