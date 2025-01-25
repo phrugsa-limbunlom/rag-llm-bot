@@ -6,7 +6,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
-from kafka import KafkaConsumer, KafkaProducer
+
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 import sys
