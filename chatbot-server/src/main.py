@@ -6,7 +6,8 @@ from datetime import datetime
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
-from kafka import KafkaConsumer, KafkaProducer
+
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 import sys
 import os
@@ -26,35 +27,80 @@ CHAT_TOPIC = 'chatbot_messages'
 RESPONSE_TOPIC = 'chatbot_responses'
 
 
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     print("Initializing Chatbot Service...")
+#     service = ChatbotService()
+#     service.initialize_service()
+#
+#     print("Initializing Kafka producer and consumer...")
+#     producer = AIOKafkaProducer(
+#         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+#         value_serializer=lambda v: json.dumps(v).encode('utf-8')
+#     )
+#     await producer.start()
+#
+#     consumer = AIOKafkaConsumer(
+#         RESPONSE_TOPIC,
+#         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+#         group_id='chatbot_response_group',
+#         auto_offset_reset='earliest',
+#         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+#     )
+#
+#     await consumer.start()
+#
+#     # make producer and consumer available in the app state
+#     app.state.producer = producer
+#     app.state.consumer = consumer
+#
+#     yield  # mark the point where the app runs
+#
+#     # shutdown
+#     print("Closing Kafka producer and consumer...")
+#     producer.close()
+#     consumer.close()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Initializing Chatbot Service...")
-    service = ChatbotService()
-    service.initialize_service()
+    producer = None
+    consumer = None
+    try:
+        print("Initializing Chatbot Service...")
+        service = ChatbotService()
+        service.initialize_service()
 
-    print("Initializing Kafka producer and consumer...")
-    producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
-    )
-    consumer = KafkaConsumer(
-        RESPONSE_TOPIC,
-        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        group_id='chatbot_response_group',
-        auto_offset_reset='earliest',
-        value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-    )
-    # make producer and consumer available in the app state
-    app.state.producer = producer
-    app.state.consumer = consumer
+        print("Initializing Kafka producer and consumer...")
+        # Initialize producer
+        producer = AIOKafkaProducer(
+            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        )
+        await producer.start()
 
-    yield  # mark the point where the app runs
+        # Initialize consumer
+        consumer = AIOKafkaConsumer(
+            RESPONSE_TOPIC,
+            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+            group_id='chatbot_response_group',
+            auto_offset_reset='earliest',
+            value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+        )
+        await consumer.start()
 
-    # shutdown
-    print("Closing Kafka producer and consumer...")
-    producer.close()
-    consumer.close()
+        # Store in app state
+        app.state.producer = producer
+        app.state.consumer = consumer
 
+        yield  # App runs here
+
+    finally:
+        print("Closing Kafka producer and consumer...")
+        # Proper async cleanup
+        if producer:
+            await producer.stop()
+        if consumer:
+            await consumer.stop()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -78,11 +124,16 @@ async def process_chat_message(chat_message: ChatMessage, request: Request):
     consumer = request.app.state.consumer
 
     # produce message to Kafka
-    producer.send(CHAT_TOPIC, {
+    await producer.send_and_wait(CHAT_TOPIC, {
         'message': chat_message.message,
         'timestamp': str(datetime.now())
     })
-    producer.flush()
+
+    # producer.send(CHAT_TOPIC, {
+    #     'message': chat_message.message,
+    #     'timestamp': str(datetime.now())
+    # })
+    # producer.flush()
 
     for msg in consumer:
         return {"response": msg.value['response']}
