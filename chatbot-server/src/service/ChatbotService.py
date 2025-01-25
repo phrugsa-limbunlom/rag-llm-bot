@@ -183,7 +183,7 @@ class ChatbotService:
     def initialize_service(self):
         print("Initialize the service")
 
-        load_dotenv('./.env')
+        load_dotenv('.env')
 
         self.template = ChatPromptTemplate.from_messages(
             [PromptMessage.System_Message, PromptMessage.Human_Message, PromptMessage.AI_Message])
@@ -192,7 +192,7 @@ class ChatbotService:
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
         # model
-        file_path = os.path.join(os.getcwd(), 'model.yaml')
+        file_path = '/chatbot-server/model.yaml'
         model_list = Util.load_yaml(file_path)
 
         self.llm_model = model_list["LLM"]

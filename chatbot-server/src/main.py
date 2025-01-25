@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # kafka Configuration
-KAFKA_BOOTSTRAP_SERVERS = ['localhost:9092']
+KAFKA_BOOTSTRAP_SERVERS = ['kafka:9092']
 CHAT_TOPIC = 'chatbot_messages'
 RESPONSE_TOPIC = 'chatbot_responses'
 

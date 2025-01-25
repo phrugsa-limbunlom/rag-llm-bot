@@ -29,6 +29,6 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./chatbot-server/src/.env
+      - chatbot-server/.env
     depends_on:
       - kafka
