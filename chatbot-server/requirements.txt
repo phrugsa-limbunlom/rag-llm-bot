@@ -13,3 +13,4 @@ langchain-text-splitters
 kafka-python==1.4.7
 kafka
 aiokafka
+bs4

@@ -5,6 +5,8 @@ services:
       - "2181:2181"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - chatbot-network
 
   kafka:
     build:
@@ -21,8 +23,12 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - chatbot-network
 
-  fastapi:
+  chatbot:
     build:
       context: ./chatbot-server
       dockerfile: Dockerfile
@@ -32,3 +38,9 @@ services:
       - chatbot-server/.env
     depends_on:
       - kafka
+    networks:
+      - chatbot-network
+
+networks:
+  chatbot-network:
+    external: true

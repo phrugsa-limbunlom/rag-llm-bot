@@ -1,55 +1,62 @@
 import os
+import sys
+import uuid
+import logging
 from datetime import datetime
 
-from kafka import KafkaConsumer, KafkaProducer
-import json
+logger = logging.getLogger(__name__)
 
-from service.ChatbotService import ChatbotService
 
 class ChatbotProcessor:
-    def __init__(self):
-        self.kafka_servers = ['localhost:9092']
-        self.input_topic = 'chatbot_messages'
-        self.output_topic = 'chatbot_responses'
+    def __init__(self, service, producer, consumer, server, input_topic, output_topic):
+        self.service = service
+        self.producer = producer
+        self.consumer = consumer
+        self.kafka_servers = server
+        self.input_topic = input_topic
+        self.output_topic = output_topic
 
-    def create_kafka_consumer(self):
-        return KafkaConsumer(
-            self.input_topic,
-            bootstrap_servers=self.kafka_servers,
-            group_id='chatbot_processor_group',
-            auto_offset_reset='earliest',
-            value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-        )
+    async def process_messages(self, message):
+        consumer = self.consumer
+        producer = self.producer
 
-    def create_kafka_producer(self):
-        return KafkaProducer(
-            bootstrap_servers=self.kafka_servers,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
-        )
+        logger.info(f"Producer: {producer}, Consumer: {consumer}")
 
-    def process_messages(self):
-        consumer = self.create_kafka_consumer()
-        producer = self.create_kafka_producer()
+        try:
 
-        for message in consumer:
-            try:
-                user_message = message.value['message']
+            uid = str(uuid.uuid4())
+            logger.info(f"Generated UID for message: {uid}")
 
-                response = service.generate_answer(query=user_message)
+            # Produce the input message to Kafka
+            await producer.send_and_wait(self.input_topic, {
+                'uid': uid,
+                'message': message,
+                'timestamp': str(datetime.now())
+            })
 
-                bot_response = response.choices[0].message.content
+            # Process the message using ChatbotService
+            answer = await self.service.generate_answer(query=message)
 
-                # Produce response to Kafka
-                producer.send(self.output_topic, {
-                    'response': bot_response,
-                    'timestamp': str(datetime.now())
-                })
-                producer.flush()
+            # Produce the generated answer to the output topic
+            await producer.send_and_wait(self.output_topic, {
+                'uid': uid,
+                'response': answer,
+                'timestamp': str(datetime.now())
+            })
 
-            except Exception as e:
-                print(f"Processing error: {e}")
+            # Consume the response from the output topic
+            await consumer.subscribe([self.output_topic])
+            msg = await consumer.getone()
 
+            if msg.value['uid'] != uid:
+                logger.error(f"UID mismatch: expected {uid}, got {msg.value['uid']}")
+                raise ValueError("UID mismatch in Kafka message")
 
-if __name__ == "__main__":
-    processor = ChatbotProcessor()
-    processor.process_messages()
+            return {"response": msg.value['response'],
+                    "uid": msg.value['uid']}
+
+        finally:
+            # Clean up the consumer and producer
+            await consumer.unsubscribe()
+            await consumer.stop()
+            await producer.stop()
