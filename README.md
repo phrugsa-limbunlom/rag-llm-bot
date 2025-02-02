@@ -1,4 +1,4 @@
-# RAG-LLM-BOT
+# PickSmart
 
 An AI-powered chatbot application to deliver contextual question-answering with personalized product recommendations using the RAG system and Agents.
 
