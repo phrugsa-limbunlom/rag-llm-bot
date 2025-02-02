@@ -152,18 +152,3 @@ class ChatbotService:
 
         # vector store
         self.retriever = self.load_vector_store(embedding_model)
-
-
-def chatbot():
-    logger.info("Welcome to AI Chatbot. Type 'exit' to quit.")
-
-    service = ChatbotService()
-    service.initialize_service()
-
-    while True:
-        query = input("\nUser: ")
-        if query.lower() == 'exit':
-            break
-
-        result = service.generate_answer(query=query)
-        logger.info("\nBot:", result)
