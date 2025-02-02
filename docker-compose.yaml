@@ -41,6 +41,17 @@ services:
     networks:
       - chatbot-network
 
+  picksmart-app:
+    build:
+      context: ./chatbot-app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8000
+    networks:
+      - chatbot-network
+
 networks:
   chatbot-network:
     external: true

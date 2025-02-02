@@ -3,8 +3,6 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime
-from http.client import responses
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from fastapi import FastAPI, Request, HTTPException
@@ -53,10 +51,6 @@ async def lifespan(app: FastAPI):
             value_deserializer=lambda x: json.loads(x.decode('utf-8'))
         )
         await consumer.start()
-
-        # Ensure consumer is properly subscribed
-        #await consumer.seek_to_end()  # Move to the end of the topic
-        #await consumer.subscribe([RESPONSE_TOPIC])
 
         # Store in app state
         app.state.producer = producer

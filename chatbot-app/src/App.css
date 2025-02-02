@@ -1,0 +1,128 @@
+.App {
+    text-align: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.App-header {
+    background-color: #282c34;
+    padding: 20px;
+    color: white;
+}
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align messages to the left */
+}
+
+.message {
+    max-width: 70%;
+    margin: 10px 0;
+    padding: 10px 15px;
+    border-radius: 20px;
+    clear: both;
+    word-wrap: break-word;
+    text-align: left; /* Ensure text is left-aligned */
+}
+
+.user {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+    margin-left: auto; /* Push user messages to the right */
+}
+
+.bot {
+    background-color: #f1f0f0;
+    color: black;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+    margin-right: auto; /* Ensure bot messages stay on the left */
+}
+
+.error {
+    background-color: #ff4d4d;
+    color: white;
+    align-self: center;
+    width: 100%;
+    text-align: center;
+}
+
+.input-form {
+    display: flex;
+    margin-top: 20px;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #cccccc;
+}
+
+.typing-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.typing-indicator span {
+    height: 10px;
+    width: 10px;
+    float: left;
+    margin: 0 1px;
+    background-color: #9E9EA1;
+    display: block;
+    border-radius: 50%;
+    opacity: 0.4;
+}
+
+.typing-indicator span:nth-of-type(1) {
+    animation: 1s blink infinite 0.3333s;
+}
+
+.typing-indicator span:nth-of-type(2) {
+    animation: 1s blink infinite 0.6666s;
+}
+
+.typing-indicator span:nth-of-type(3) {
+    animation: 1s blink infinite 0.9999s;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 1;
+    }
+}
