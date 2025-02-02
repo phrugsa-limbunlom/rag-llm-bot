@@ -28,7 +28,7 @@ services:
     networks:
       - chatbot-network
 
-  chatbot:
+  picksmart-backend:
     build:
       context: ./chatbot-server
       dockerfile: Dockerfile
