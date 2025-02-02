@@ -1,0 +1,46 @@
+services:
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - chatbot-network
+
+  kafka:
+    build:
+      context: ./kafka
+      dockerfile: Dockerfile
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./kafka/config/server.properties:/etc/kafka/server.properties
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - chatbot-network
+
+  chatbot:
+    build:
+      context: ./chatbot-server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - chatbot-server/.env
+    depends_on:
+      - kafka
+    networks:
+      - chatbot-network
+
+networks:
+  chatbot-network:
+    external: true
