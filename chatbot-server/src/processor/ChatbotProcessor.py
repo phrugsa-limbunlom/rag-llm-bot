@@ -49,5 +49,5 @@ class ChatbotProcessor:
             logger.error(f"UID mismatch: expected {uid}, got {msg.value['uid']}")
             raise ValueError("UID mismatch in Kafka message")
 
-        return {"response": msg.value['response'],
+        return {"value": msg.value['response'],
                 "uid": msg.value['uid']}

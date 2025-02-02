@@ -91,13 +91,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Enable CORS
+# enable cors
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["http://localhost:3000"],  # Allow only frontend
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["POST"],  # Define methods
+    allow_headers=["*"],
 )
 
 
@@ -122,7 +122,7 @@ async def process_chat_message(chat_message: ChatMessage, request: Request):
     try:
         logger.info("Waiting for Kafka response...")
         response = await processor.process_messages(chat_message.message)
-        logger.info(f"Kafka response received: {response.value}")
+        logger.info(f"Kafka response received: {response}")
         return response
     except Exception as e:
         logger.error(f"Error processing message: {e}")
