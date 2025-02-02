@@ -144,7 +144,7 @@ class ChatbotService:
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
         # model
-        file_path = '/chatbot-server/model.yaml'
+        file_path = '../model.yaml'
         model_list = Util.load_yaml(file_path)
 
         self.llm_model = model_list["LLM"]
