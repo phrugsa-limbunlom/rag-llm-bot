@@ -1,6 +1,6 @@
 import os
 import requests.exceptions
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from groq import Groq
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import TextLoader, WebBaseLoader
@@ -135,7 +135,7 @@ class ChatbotService:
     def initialize_service(self):
         logger.info("Initialize the service")
 
-        load_dotenv('.env')
+        load_dotenv(find_dotenv())
 
         self.template = ChatPromptTemplate.from_messages(
             [PromptMessage.System_Message, PromptMessage.Human_Message, PromptMessage.AI_Message])
