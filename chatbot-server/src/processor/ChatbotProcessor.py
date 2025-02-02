@@ -22,41 +22,32 @@ class ChatbotProcessor:
 
         logger.info(f"Producer: {producer}, Consumer: {consumer}")
 
-        try:
+        uid = str(uuid.uuid4())
+        logger.info(f"Generated UID for message: {uid}")
 
-            uid = str(uuid.uuid4())
-            logger.info(f"Generated UID for message: {uid}")
+        # produce the input message to Kafka
+        await producer.send_and_wait(self.input_topic, {
+            'uid': uid,
+            'message': message,
+            'timestamp': str(datetime.now())
+        })
 
-            # Produce the input message to Kafka
-            await producer.send_and_wait(self.input_topic, {
-                'uid': uid,
-                'message': message,
-                'timestamp': str(datetime.now())
-            })
+        # process the message using ChatbotService
+        answer = self.service.generate_answer(query=message)
 
-            # Process the message using ChatbotService
-            answer = await self.service.generate_answer(query=message)
+        # produce the generated answer to the output topic
+        await producer.send_and_wait(self.output_topic, {
+            'uid': uid,
+            'response': answer,
+            'timestamp': str(datetime.now())
+        })
 
-            # Produce the generated answer to the output topic
-            await producer.send_and_wait(self.output_topic, {
-                'uid': uid,
-                'response': answer,
-                'timestamp': str(datetime.now())
-            })
+        # consume the response from the output topic
+        msg = await consumer.getone()
 
-            # Consume the response from the output topic
-            await consumer.subscribe([self.output_topic])
-            msg = await consumer.getone()
+        if msg.value['uid'] != uid:
+            logger.error(f"UID mismatch: expected {uid}, got {msg.value['uid']}")
+            raise ValueError("UID mismatch in Kafka message")
 
-            if msg.value['uid'] != uid:
-                logger.error(f"UID mismatch: expected {uid}, got {msg.value['uid']}")
-                raise ValueError("UID mismatch in Kafka message")
-
-            return {"response": msg.value['response'],
-                    "uid": msg.value['uid']}
-
-        finally:
-            # Clean up the consumer and producer
-            await consumer.unsubscribe()
-            await consumer.stop()
-            await producer.stop()
+        return {"response": msg.value['response'],
+                "uid": msg.value['uid']}

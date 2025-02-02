@@ -56,7 +56,7 @@ async def lifespan(app: FastAPI):
 
         # Ensure consumer is properly subscribed
         #await consumer.seek_to_end()  # Move to the end of the topic
-        await consumer.subscribe([RESPONSE_TOPIC])
+        #await consumer.subscribe([RESPONSE_TOPIC])
 
         # Store in app state
         app.state.producer = producer
@@ -109,49 +109,21 @@ async def process_chat_message(chat_message: ChatMessage, request: Request):
     consumer = request.app.state.consumer
     service = request.app.state.service
 
-    # if not producer or not consumer:
-    #     raise HTTPException(status_code=500, detail="Kafka producer or consumer is not initialized.")
-    #
-    # processor = ChatbotProcessor(service=service,
-    #                              producer=producer,
-    #                              consumer=consumer,
-    #                              server=KAFKA_BOOTSTRAP_SERVERS,
-    #                              input_topic=CHAT_TOPIC,
-    #                              output_topic=RESPONSE_TOPIC)
-    #
-    # try:
-    #     response = await processor.process_messages(chat_message.message)
-    #     logger.info(f"Response: {response}")
-    #     return response
-    # except Exception as e:
-    #     logger.error(f"Error processing message: {e}")
-    #     raise HTTPException(status_code=500, detail=str(e))
-    #
-    # produce message to Kafka
-    await producer.send_and_wait(CHAT_TOPIC, {
-        'message': chat_message.message,
-        'timestamp': str(datetime.now())
-    })
+    if not producer or not consumer:
+        raise HTTPException(status_code=500, detail="Kafka producer or consumer is not initialized.")
 
-    answer = service.generate_answer(query=chat_message.message)
-
-    await producer.send_and_wait(RESPONSE_TOPIC, {
-        'message': answer,
-        'timestamp': str(datetime.now())
-    })
+    processor = ChatbotProcessor(service=service,
+                                 producer=producer,
+                                 consumer=consumer,
+                                 server=KAFKA_BOOTSTRAP_SERVERS,
+                                 input_topic=CHAT_TOPIC,
+                                 output_topic=RESPONSE_TOPIC)
 
     try:
-        # consume the response from Kafka
-        logger.info("Before Kafka response received, ")
-        # await consumer.subscribe([RESPONSE_TOPIC])
-
-        msg = await consumer.getone()
-        logger.info("Kafka response received, ", msg)
-        return {"response": msg.value['response']}
+        logger.info("Waiting for Kafka response...")
+        response = await processor.process_messages(chat_message.message)
+        logger.info(f"Kafka response received: {response.value}")
+        return response
     except Exception as e:
-        logger.error(f"Error during Kafka response received: {e}")
+        logger.error(f"Error processing message: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        # clean up the consumer
-        logger.info("Finally Kafka response received, ")
-        await consumer.stop()
