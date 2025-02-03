@@ -1,5 +1,7 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { FaRobot } from "react-icons/fa";
+import { Send } from "lucide-react";
 import "./App.css";
 
 function App() {
@@ -13,7 +15,7 @@ function App() {
     const url = `${backendUrl}${endpoint}`;
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(scrollToBottom, [messages]);
@@ -22,7 +24,7 @@ function App() {
         e.preventDefault();
         if (!input.trim()) return;
 
-        const userMessage = {text: input, sender: "user"};
+        const userMessage = { text: input, sender: "user" };
         setMessages((prevMessages) => [...prevMessages, userMessage]);
         setInput("");
         setLoading(true);
@@ -32,10 +34,10 @@ function App() {
                 user: "user",
                 message: input,
             });
-            const botMessage = {text: res.data.value, sender: "bot"};
+            const botMessage = { text: res.data.value, sender: "bot" };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
         } catch (err) {
-            console.error(err)
+            console.error(err);
             const errorMessage = {
                 text: err.response?.data?.error || "An error occurred.",
                 sender: "error",
@@ -55,6 +57,7 @@ function App() {
                 <div className="messages">
                     {messages.map((message, index) => (
                         <div key={index} className={`message ${message.sender}`}>
+                            {message.sender === "bot" && <FaRobot className="bot-icon" />}
                             {message.text}
                         </div>
                     ))}
@@ -67,7 +70,7 @@ function App() {
                             </div>
                         </div>
                     )}
-                    <div ref={messagesEndRef}/>
+                    <div ref={messagesEndRef} />
                 </div>
                 <form onSubmit={handleSubmit} className="input-form">
                     <input
@@ -77,8 +80,12 @@ function App() {
                         placeholder="Type your message..."
                         disabled={loading}
                     />
-                    <button type="submit" disabled={loading}>
-                        Send
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="p-2 rounded-full bg-blue-500 text-white disabled:opacity-50"
+                    >
+                        <Send size={20} />
                     </button>
                 </form>
             </div>
