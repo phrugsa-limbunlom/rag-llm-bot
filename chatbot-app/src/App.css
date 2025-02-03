@@ -3,12 +3,15 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
 }
 
 .App-header {
-    background-color: #282c34;
+    background-color: #1F2544;
     padding: 20px;
     color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .chat-container {
@@ -27,7 +30,7 @@
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Align messages to the left */
+    align-items: flex-start;
 }
 
 .message {
@@ -37,23 +40,34 @@
     border-radius: 20px;
     clear: both;
     word-wrap: break-word;
-    text-align: left; /* Ensure text is left-aligned */
+    text-align: left;
 }
 
 .user {
-    background-color: #007bff;
+    background-color: #474F7A;
     color: white;
     align-self: flex-end;
     border-bottom-right-radius: 0;
-    margin-left: auto; /* Push user messages to the right */
+    margin-left: auto;
 }
 
 .bot {
-    background-color: #f1f0f0;
+    background-color: white;
     color: black;
     align-self: flex-start;
-    border-bottom-left-radius: 0;
-    margin-right: auto; /* Ensure bot messages stay on the left */
+    border-radius: 10px;
+    margin: 10px 0;
+    padding: 12px 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bot-icon {
+    margin-left: 10px;
+    color: #474F7A;
 }
 
 .error {
@@ -76,20 +90,27 @@ input {
     border: 1px solid #ddd;
     border-radius: 4px;
     margin-right: 10px;
+    background-color: #f9f9f9;
 }
 
 button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #007bff;
+    background-color: #474F7A;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #81689D;
 }
 
 button:disabled {
     background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 .typing-indicator {
