@@ -1,7 +1,5 @@
-import os
-import sys
-import uuid
 import logging
+import uuid
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
