@@ -1,2 +1,2 @@
-LLM: llama3-70b-8192
+LLM: llama-3.3-70b-versatile
 EMBEDDING: sentence-transformers/all-MiniLM-L6-v2
