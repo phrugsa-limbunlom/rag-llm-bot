@@ -21,8 +21,6 @@ class ChatbotService:
         self.llm_model = None
         self.retriever = None
 
-        # Groq API
-
     def query_groq_api(self, client, prompt, model):
         """Query the Groq API directly and return the response."""
         try:
@@ -47,6 +45,15 @@ class ChatbotService:
             logger.error(f"An error occurred: {str(e)}")
             return "Sorry, I encountered an unexpected error."
 
+    def is_query_relevant(self, query):
+        """Check if the query is relevant to the prompt template using the model."""
+        relevance_prompt = (
+            f"This is prompt template : \"{self.template}\". Evaluate whether the following query is relevant to the prompt template: \"{query}\". Respond only one word 'relevant' or 'irrelevant'.")
+
+        relevance_response = self.query_groq_api(client=self.client, prompt=relevance_prompt, model=self.llm_model)
+
+        return relevance_response == "relevant"
+
     def generate_answer(self, query):
         """Generate an answer using RAG and the Groq API."""
         if not self.is_query_relevant(query):
@@ -60,15 +67,6 @@ class ChatbotService:
         answer = self.query_groq_api(client=self.client, prompt=prompt, model=self.llm_model)
 
         return answer
-
-    def is_query_relevant(self, query):
-        """Check if the query is relevant to the prompt template using the model."""
-        relevance_prompt = (
-            f"This is prompt template : \"{self.template}\". Evaluate whether the following query is relevant to the prompt template: \"{query}\". Respond only one word 'relevant' or 'irrelevant'.")
-
-        relevance_response = self.query_groq_api(client=self.client, prompt=relevance_prompt, model=self.llm_model)
-
-        return relevance_response == "relevant"
 
     def initialize_service(self):
         logger.info("Initialize the service")
@@ -88,29 +86,6 @@ class ChatbotService:
         self.llm_model = model_list["LLM"]
         embedding_model = model_list["EMBEDDING"]
 
+        # vector store
         urls = [WebURLs.Amazon, WebURLs.Ebay]
-
-        # create vector store if no vector store exists
-
-        vector_store = VectorStoreService(embedding_model=embedding_model)
-
-        for url in urls:
-
-            domain = url.replace("https://www.", "").split('.')[0]
-
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-
-            persistent_directory = os.path.join(current_dir, "db", "chroma_db")
-
-            logger.info(persistent_directory)
-
-            if not os.path.exists(persistent_directory):
-
-                logger.info("The vector store does not exist. Initializing vector store...")
-                vector_store.create_vector_store(persistent_directory, url)
-
-            else:
-                logger.info("The vector store already exists. No need to Initialize")
-
-            # vector store
-            self.retriever = vector_store.load_vector_store(persistent_directory)
+        self.retriever = VectorStoreService(embedding_model=embedding_model).load_vector_store(urls=urls)[0]
