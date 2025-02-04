@@ -1,15 +1,14 @@
+import logging
 import os
+
 import requests.exceptions
 from dotenv import load_dotenv, find_dotenv
 from groq import Groq
-from langchain_chroma import Chroma
-from langchain_community.document_loaders import TextLoader, WebBaseLoader
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_huggingface.embeddings import HuggingFaceEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from prompt.PromptMessage import PromptMessage
+from text.PromptMessage import PromptMessage
+from text.WebURLs import WebURLs
 from util.util import Util
-import logging
+from service.VectorStoreService import VectorStoreService
 
 logger = logging.getLogger(__name__)
 
@@ -71,67 +70,6 @@ class ChatbotService:
 
         return relevance_response == "relevant"
 
-    def load_vector_store(self, embedding_model):
-        # create vector store if no vector store exists
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(current_dir, "../", "document", "product_information.txt")
-
-        persistent_directory = os.path.join(current_dir, "../", "db", "chroma_db")
-
-        # amazon
-        persistent_directory_amazon = os.path.join(current_dir, "../", "db", "chroma_db_amazon")
-
-        urls = ["https://www.amazon.co.uk/"]
-
-        loader = WebBaseLoader(urls)
-        documents = loader.load()  # Use  load if available
-
-        # embedding
-        logger.info("Creating Embedding")
-        embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
-        logger.info("Finish creating Embedding")
-
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-        docs = text_splitter.split_documents(documents)
-        logger.info("Creating vector store from Amazon")
-        Chroma.from_documents(docs, embeddings, persist_directory=persistent_directory_amazon)
-        logger.info("Finish creating vector store from Amazon")
-
-        if not os.path.exists(persistent_directory):
-            logger.info("The vector store does not exist. Initializing vector store...")
-
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"The {file_path} does not exist")
-
-            # load document from text
-            loader = TextLoader(file_path)
-            documents = loader.load()  # Use  load if available
-
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-            docs = text_splitter.split_documents(documents)
-
-            logger.info(f"Number of chunks: {len(docs)}")
-            logger.info(f"Sample chunk:\n{docs[0].page_content}\n")
-
-            # create the vector store and save it to directory
-            logger.info("Creating vector store")
-            Chroma.from_documents(docs, embeddings, persist_directory=persistent_directory)
-            logger.info("Finish creating vector store")
-
-        else:
-            logger.info("The vector store already exists. No need to Initialize")
-
-        # load the existing vector store
-        logger.info("Loading the existing vector store from Amazon")
-        vector_store = Chroma(persist_directory=persistent_directory_amazon, embedding_function=embeddings)
-
-        vector_retriever = vector_store.as_retriever(
-            search_type="similarity_score_threshold",
-            search_kwargs={"k": 3, "score_threshold": 0.1}
-        )
-
-        return vector_retriever
-
     def initialize_service(self):
         logger.info("Initialize the service")
 
@@ -150,5 +88,29 @@ class ChatbotService:
         self.llm_model = model_list["LLM"]
         embedding_model = model_list["EMBEDDING"]
 
-        # vector store
-        self.retriever = self.load_vector_store(embedding_model)
+        urls = [WebURLs.Amazon, WebURLs.Ebay]
+
+        # create vector store if no vector store exists
+
+        vector_store = VectorStoreService(embedding_model=embedding_model)
+
+        for url in urls:
+
+            domain = url.replace("https://www.", "").split('.')[0]
+
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+
+            persistent_directory = os.path.join(current_dir, "db", "chroma_db")
+
+            logger.info(persistent_directory)
+
+            if not os.path.exists(persistent_directory):
+
+                logger.info("The vector store does not exist. Initializing vector store...")
+                vector_store.create_vector_store(persistent_directory, url)
+
+            else:
+                logger.info("The vector store already exists. No need to Initialize")
+
+            # vector store
+            self.retriever = vector_store.load_vector_store(persistent_directory)
