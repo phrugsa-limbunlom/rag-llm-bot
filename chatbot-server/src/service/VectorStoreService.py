@@ -20,7 +20,7 @@ class VectorStoreService:
         embeddings = HuggingFaceEmbeddings(model_name=self.embedding_model)
         logger.info("Finish creating Embedding")
 
-        vector_retrievers = []
+        vector_retrievers = {}
         for url in urls:
             domain = url.replace("https://www.", "").split('.')[0]
 
@@ -50,6 +50,6 @@ class VectorStoreService:
                 search_kwargs={"k": 3, "score_threshold": 0.5}
             )
 
-            vector_retrievers.append(vector_retriever)
+            vector_retrievers.update({domain: vector_retriever})
 
         return vector_retrievers
