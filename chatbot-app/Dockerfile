@@ -1,14 +1,22 @@
-FROM node:14
+# Use an official Node.js image
+FROM node:18-alpine
 
-WORKDIR /picksmart-app
+# Set working directory
+WORKDIR /app
 
-COPY package.json ./
-COPY package-lock.json ./
+# Copy package files first to leverage caching
+COPY package.json package-lock.json ./
 
+# Install dependencies
 RUN npm install
 
+# Copy the rest of the application
 COPY . .
 
-CMD ["npm", "start"]
-
+# Expose port
 EXPOSE 3000
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
+# Start the application
+CMD ["npm", "start"]
