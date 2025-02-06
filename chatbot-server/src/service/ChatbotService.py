@@ -45,10 +45,8 @@ class ChatbotService:
 
         except requests.exceptions.HTTPError as e:
             logger.error(f"HTTP Error occurred: {e.response.status_code} - {e.response.text}")
-            return "Sorry, I encountered an error while processing your request."
         except Exception as e:
             logger.error(f"An error occurred: {str(e)}")
-            return "Sorry, I encountered an unexpected error."
 
     def is_query_relevant(self, query):
         """Check if the query is relevant to the prompt template using the model."""
@@ -84,6 +82,8 @@ class ChatbotService:
                                 tool=self.tool,
                                 client=self.client)
         response = agent.graph.invoke({"user_query": query})
+
+        print(response['result'])
 
         return response['result']
 
