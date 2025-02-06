@@ -2,7 +2,8 @@
 
 An AI-powered chatbot application that delivers contextual question-answering with personalized product recommendations using a Retrieval-Augmented Generation (RAG) system and intelligent agents.
 
-![image](https://github.com/user-attachments/assets/38b0dfb1-3b4c-478f-a858-7cd56c281cab)
+<video src="https://github.com/user-attachments/assets/cc4a49d2-066e-48be-bb07-338ee3767c0c" width="200" controls>
+</video>
 
 ## Usage
 - Ask a question about a product.
@@ -17,6 +18,7 @@ An AI-powered chatbot application that delivers contextual question-answering wi
 - **Contextual response Generation**: Provides detailed answers with personalized recommendations.
 
 ## Tech Stack
+<img alt="Langchain" src="https://img.shields.io/badge/-langchain-013243?style=flat&logo=langchain&logoColor=white"> <img alt="Langgraph" src="https://img.shields.io/badge/-Langgraph-013243?style=flat&logo=Langgraph&logoColor=white"> <img alt="FastAPI" src="https://img.shields.io/badge/-Fastapi-013243?style=flat&logo=Fastapi&logoColor=white">
 - **Frontend**: React  
 - **Backend**: FastAPI  
 - **Streaming**: Kafka  
