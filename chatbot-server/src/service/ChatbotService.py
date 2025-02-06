@@ -1,6 +1,6 @@
 import logging
 import os
-
+import json
 import requests.exceptions
 from agent.SearchAgent import SearchAgent
 from dotenv import load_dotenv, find_dotenv
@@ -60,7 +60,7 @@ class ChatbotService:
     def generate_answer(self, query):
         """Generate an answer using RAG and the Groq API."""
         if not self.is_query_relevant(query):
-            return PromptMessage.Default_Message
+            return json.dumps({"default" : PromptMessage.Default_Message})
 
         # retrieve from Amazon store
         results = self.retrievers["amazon"].invoke(query)
@@ -75,15 +75,13 @@ class ChatbotService:
     def generate_answer_with_agent(self, query):
         """Generate an answer using agent."""
         if not self.is_query_relevant(query):
-            return PromptMessage.Default_Message
+            return json.dumps({"default" : PromptMessage.Default_Message})
 
         agent = SearchAgent(llm_model=self.llm_model,
                                 embedding_model=self.embedding_model,
                                 tool=self.tool,
                                 client=self.client)
         response = agent.graph.invoke({"user_query": query})
-
-        print(response['result'])
 
         return response['result']
 
