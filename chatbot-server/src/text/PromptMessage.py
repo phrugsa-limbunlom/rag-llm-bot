@@ -28,3 +28,22 @@ class PromptMessage:
     Please feel free to ask me about a specific product or category you're interested in, 
     and I'll do my best to provide you with accurate and up-to-date recommendations.
     """
+    ANALYZE_QUERY_PROMPT = """You are an AI assistant charged with revising user query that can \
+    be used when searching online products. Generate a list of effective search queries for llm models \
+    that will help to gather any relevant product information. \
+    Only generate 3 queries max and send query in this format: query1|query2|query3.
+    """
+    ANALYZE_RANK_PROMPT = """You are a product researcher specialized in analyzing and comparing product information \
+    tailored for users' requirements. Analyze and rank products based on production information and users' requirements.\
+    Give the product ranking result with this template:
+    
+    title: Title
+    description: Description
+    
+    and return all product ranking in json format and uses the main kay as "products" for every answer. \
+    and sends your initial contextual-answering messages in json format and uses the main key as "initial" for every answer. \
+    and sends your final contextual-answering messages in json format and uses the main key as "final" for every answer. \
+    Give only json format with explanations above. All "initial", "products", and "final" keys are in the same json. \
+    Do not include ```.
+    """
+    ANALYZE_RANK_HUMAN_PROMPT = """This is list of product information:{products}. This is my requirement: {requirements}"""

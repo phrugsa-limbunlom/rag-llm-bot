@@ -2,13 +2,16 @@ import logging
 import os
 
 import requests.exceptions
+from agent.SearchAgent import SearchAgent
 from dotenv import load_dotenv, find_dotenv
 from groq import Groq
 from langchain_core.prompts import ChatPromptTemplate
+from service.VectorStoreService import VectorStoreService
+from tavily import TavilyClient
 from text.PromptMessage import PromptMessage
 from text.WebURLs import WebURLs
 from util.util import Util
-from service.VectorStoreService import VectorStoreService
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +22,9 @@ class ChatbotService:
         self.template = None
         self.client = None
         self.llm_model = None
-        self.retriever = None
+        self.embedding_model = None
+        self.retrievers = None
+        self.tool = None
 
     def query_groq_api(self, client, prompt, model):
         """Query the Groq API directly and return the response."""
@@ -40,10 +45,8 @@ class ChatbotService:
 
         except requests.exceptions.HTTPError as e:
             logger.error(f"HTTP Error occurred: {e.response.status_code} - {e.response.text}")
-            return "Sorry, I encountered an error while processing your request."
         except Exception as e:
             logger.error(f"An error occurred: {str(e)}")
-            return "Sorry, I encountered an unexpected error."
 
     def is_query_relevant(self, query):
         """Check if the query is relevant to the prompt template using the model."""
@@ -59,7 +62,8 @@ class ChatbotService:
         if not self.is_query_relevant(query):
             return PromptMessage.Default_Message
 
-        results = self.retriever.invoke(query)
+        # retrieve from Amazon store
+        results = self.retrievers["amazon"].invoke(query)
 
         context = " ".join([doc.page_content for doc in results])
         prompt = self.template.invoke({"context": context, "query": query}).to_string()
@@ -67,6 +71,21 @@ class ChatbotService:
         answer = self.query_groq_api(client=self.client, prompt=prompt, model=self.llm_model)
 
         return answer
+
+    def generate_answer_with_agent(self, query):
+        """Generate an answer using agent."""
+        if not self.is_query_relevant(query):
+            return PromptMessage.Default_Message
+
+        agent = SearchAgent(llm_model=self.llm_model,
+                                embedding_model=self.embedding_model,
+                                tool=self.tool,
+                                client=self.client)
+        response = agent.graph.invoke({"user_query": query})
+
+        print(response['result'])
+
+        return response['result']
 
     def initialize_service(self):
         logger.info("Initialize the service")
@@ -84,8 +103,11 @@ class ChatbotService:
         model_list = Util.load_yaml(file_path)
 
         self.llm_model = model_list["LLM"]
-        embedding_model = model_list["EMBEDDING"]
+        self.embedding_model = model_list["EMBEDDING"]
+
+        # tool
+        self.tool = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
         # vector store
         urls = [WebURLs.Amazon, WebURLs.Ebay]
-        self.retriever = VectorStoreService(embedding_model=embedding_model).load_vector_store(urls=urls)[0]
+        self.retrievers = VectorStoreService(embedding_model=self.embedding_model).load_vector_store(urls=urls)

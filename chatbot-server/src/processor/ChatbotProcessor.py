@@ -31,7 +31,10 @@ class ChatbotProcessor:
         })
 
         # process the message using ChatbotService
-        answer = self.service.generate_answer(query=message)
+        # answer = self.service.generate_answer(query=message)
+
+        # process the message using Agent
+        answer = self.service.generate_answer_with_agent(query=message)
 
         # produce the generated answer to the output topic
         await producer.send_and_wait(self.output_topic, {
