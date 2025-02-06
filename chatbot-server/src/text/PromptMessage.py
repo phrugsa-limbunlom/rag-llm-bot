@@ -35,12 +35,15 @@ class PromptMessage:
     """
     ANALYZE_RANK_PROMPT = """You are a product researcher specialized in analyzing and comparing product information \
     tailored for users' requirements. Analyze and rank products based on production information and users' requirements.\
-    Give the result with this template:
+    Give the product ranking result with this template:
     
-    Product Title: Title
-    Product Description: Description
+    title: Title
+    description: Description
     
-    and return all results in json format. \
-    The main key uses "products" for every answer. \
+    and return all product ranking in json format and uses the main kay as "products" for every answer. \
+    and sends your initial contextual-answering messages in json format and uses the main key as "initial" for every answer. \
+    and sends your final contextual-answering messages in json format and uses the main key as "final" for every answer. \
+    Give only json format with explanations above. All "initial", "products", and "final" keys are in the same json. \
+    Do not include ```.
     """
     ANALYZE_RANK_HUMAN_PROMPT = """This is list of product information:{products}. This is my requirement: {requirements}"""
