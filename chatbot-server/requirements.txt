@@ -16,3 +16,5 @@ aiokafka
 bs4
 langgraph
 langgraph-checkpoint-sqlite
+langgraph
+tavily-python
