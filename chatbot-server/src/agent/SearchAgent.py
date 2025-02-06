@@ -35,10 +35,10 @@ class SearchAgent:
             {False: "search_online_shop", True: "analyze_and_rank"}
         )
         graph.add_edge("search_online_shop", "analyze_and_rank")
-        # graph.add_edge("analyze_and_rank", "find_product_source")
+        #graph.add_edge("analyze_and_rank", "find_product_source")
         graph.set_finish_point("analyze_and_rank")
-        # self.graph = graph.compile(checkpointer=checkpointer)
-        self.graph = graph.compile()
+        self.graph = graph.compile(checkpointer=checkpointer)
+        # self.graph = graph.compile()
 
     def call_client(self, prompt: str):
         try:
@@ -118,73 +118,73 @@ class SearchAgent:
 
         return {"result": self.call_client(prompt=prompt)}
 
-    def find_source_node(self, state: SearchAgentState):
+    # def find_source_node(self, state: SearchAgentState):
+    #
+    #     results = json.loads(state['result'])
+    #
+    #     for result in results["products"]:
+    #         for k, v in list(result.items()):
+    #             query = f"find source url for this product {v} from online shopping website"
+    #             response = self.tool.search(query=query, max_results=6)
+    #             result.update({"Source": response['results'][0]['url']})
+    #
+    #     return {"final_result": results}
 
-        results = json.loads(state['result'])
-
-        for result in results["products"]:
-            for k, v in list(result.items()):
-                query = f"find source url for this product {v} from online shopping website"
-                response = self.tool.search(query=query, max_results=6)
-                result.update({"Source": response['results'][0]['url']})
-
-        return {"final_result": results}
-
-    def find_source_node(self, state: SearchAgentState):
-        with sync_playwright() as p:
-            results = json.loads(state['result'])
-
-            browser = p.chromium.launch(headless=False,
-                                        slow_mo=100,
-                                        args=[
-                                            '--disable-features=ImprovedCookieControls'
-                                        ])
-            context = browser.new_context(ignore_https_errors=True)
-
-            context.add_cookies([
-                {
-                    'name': 'session_id',
-                    'value': 'abc123',
-                    'domain': 'example.com',
-                    'path': '/'
-                }
-            ])
-            page = context.new_page()
-
-            for result in results["products"]:
-                for k, v in list(result.items()):
-
-                    page.goto(f"https://www.google.com")
-                    page.click('text=Accept')
-
-                    search_box = page.locator("input[name='q']")
-                    search_box.fill(v)
-                    search_box.press("Enter")
-
-                    page.wait_for_selector("text=Shopping")
-                    page.locator("text=Shopping").click()
-
-                    page.wait_for_selector(".sh-dgr__content", timeout=10000)
-
-                    product_cards = page.query_selector_all(".sh-dgr__content")
-
-                    for card in product_cards:
-                        try:
-                            link_element = card.query_selector("a")
-                            image_element = card.query_selector("img")
-
-                            r = {
-                                "link": link_element.get_attribute("href"),
-                                "image": image_element.get_attribute("src") if image_element else None
-                            }
-                            result.update(r)
-                            break
-                        except:
-                            continue
-
-            browser.close()
-
-        return {"final_result": results}
+    # def find_source_node(self, state: SearchAgentState):
+    #     with sync_playwright() as p:
+    #         results = json.loads(state['result'])
+    #
+    #         browser = p.chromium.launch(headless=False,
+    #                                     slow_mo=100,
+    #                                     args=[
+    #                                         '--disable-features=ImprovedCookieControls'
+    #                                     ])
+    #         context = browser.new_context(ignore_https_errors=True)
+    #
+    #         context.add_cookies([
+    #             {
+    #                 'name': 'session_id',
+    #                 'value': 'abc123',
+    #                 'domain': 'example.com',
+    #                 'path': '/'
+    #             }
+    #         ])
+    #         page = context.new_page()
+    #
+    #         for result in results["products"]:
+    #             for k, v in list(result.items()):
+    #
+    #                 page.goto(f"https://www.google.com")
+    #                 page.click('text=Accept')
+    #
+    #                 search_box = page.locator("input[name='q']")
+    #                 search_box.fill(v)
+    #                 search_box.press("Enter")
+    #
+    #                 page.wait_for_selector("text=Shopping")
+    #                 page.locator("text=Shopping").click()
+    #
+    #                 page.wait_for_selector(".sh-dgr__content", timeout=10000)
+    #
+    #                 product_cards = page.query_selector_all(".sh-dgr__content")
+    #
+    #                 for card in product_cards:
+    #                     try:
+    #                         link_element = card.query_selector("a")
+    #                         image_element = card.query_selector("img")
+    #
+    #                         r = {
+    #                             "link": link_element.get_attribute("href"),
+    #                             "image": image_element.get_attribute("src") if image_element else None
+    #                         }
+    #                         result.update(r)
+    #                         break
+    #                     except:
+    #                         continue
+    #
+    #         browser.close()
+    #
+    #     return {"final_result": results}
 
     def should_continue(self, state: SearchAgentState):
 
