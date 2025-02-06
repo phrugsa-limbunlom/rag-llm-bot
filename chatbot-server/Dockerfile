@@ -1,6 +1,8 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
 WORKDIR /chatbot-server
+
+RUN pip install --upgrade pip
 
 # Install Rust and Cargo
 RUN apt-get update && apt-get install -y curl && curl https://sh.rustup.rs -sSf | sh -s -- -y && \
@@ -9,7 +11,7 @@ RUN apt-get update && apt-get install -y curl && curl https://sh.rustup.rs -sSf 
 
 # Copy requirements.txt and install dependencies
 COPY requirements.txt /chatbot-server
-RUN /bin/bash -c "source $HOME/.cargo/env && pip install --no-cache-dir --timeout=120 -r requirements.txt --index-url https://pypi.org/simple"
+RUN /bin/bash -c "source $HOME/.cargo/env && pip install --no-cache-dir --timeout=300 -r requirements.txt --index-url https://pypi.org/simple"
 
 # Copy the entire project (including model.yaml)
 COPY . /chatbot-server
