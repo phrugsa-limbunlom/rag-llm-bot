@@ -40,6 +40,16 @@ Configure API keys in the `.env` file:
    ```
 Configure Embedding model and LLM model in `model.yaml` file:
 
+## Running with Docker
+
+Skip the installation and setup by running all servers in Docker. The website is hosted on `localhost:3000`.
+
+```bash
+cd PickSmart
+docker-compose up --build
+```
+
+
 ## Installation & Setup
 1. Clone the repository:
    ```bash
@@ -70,9 +80,3 @@ Configure Embedding model and LLM model in `model.yaml` file:
    ```bash
    npm start
    ```
-## Docker running
-
-```bash
-   cd PickSmart
-   docker-compose up --build
-```
