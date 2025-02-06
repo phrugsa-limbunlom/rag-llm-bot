@@ -24,7 +24,7 @@ class SearchAgent:
         graph.add_node("search_vector_store", self.search_vector_node)
         graph.add_node("search_online_shop", self.search_online_node)
         graph.add_node("analyze_and_rank", self.analyze_rank_node)
-        graph.add_node("find_product_source", self.find_source_node)
+        # graph.add_node("find_product_source", self.find_source_node)
         graph.set_entry_point("analyze_query")
         graph.add_edge("analyze_query", "search_vector_store")
         graph.add_conditional_edges(
@@ -33,7 +33,7 @@ class SearchAgent:
             {False: "search_online_shop", True: "analyze_and_rank"}
         )
         graph.add_edge("search_online_shop", "analyze_and_rank")
-        #graph.add_edge("analyze_and_rank", "find_product_source")
+        # graph.add_edge("analyze_and_rank", "find_product_source")
         graph.set_finish_point("analyze_and_rank")
         self.graph = graph.compile(checkpointer=checkpointer)
         # self.graph = graph.compile()
