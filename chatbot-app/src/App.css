@@ -1,6 +1,15 @@
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+}
+
 .App {
     text-align: center;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     background-color: #f5f5f5;
@@ -52,6 +61,20 @@
 }
 
 .bot {
+    background-color: white;
+    color: black;
+    align-self: flex-start;
+    border-radius: 10px;
+    margin: 10px 0;
+    padding: 12px 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.products {
     background-color: white;
     color: black;
     align-self: flex-start;

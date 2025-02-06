@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FaRobot } from "react-icons/fa";
 import { Send } from "lucide-react";
@@ -11,14 +11,20 @@ function App() {
     const messagesEndRef = useRef(null);
 
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
-    const endpoint = '/api/chat';
+    const endpoint = "/api/chat";
     const url = `${backendUrl}${endpoint}`;
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
-    useEffect(scrollToBottom, [messages]);
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            scrollToBottom();
+        }
+    }, [messages]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,8 +40,42 @@ function App() {
                 user: "user",
                 message: input,
             });
-            const botMessage = { text: res.data.value, sender: "bot" };
-            setMessages((prevMessages) => [...prevMessages, botMessage]);
+
+            const data = res.data;
+            const structuredMessages = [];
+
+            const response = JSON.parse(data.value);
+
+            console.log(response);
+
+            // Default Message
+            if (response.default) {
+                structuredMessages.push({ text: response.default, sender: "bot" });
+            }
+
+            // Initial Message
+            if (response.initial) {
+                structuredMessages.push({ text: response.initial.message, sender: "bot" });
+            }
+
+            console.log(response.products);
+            // Product Cards
+            if (response.products) {
+                structuredMessages.push(
+                    ...response.products.map((product) => ({
+                        title: product.title,
+                        description: product.description,
+                        sender: "products",
+                    }))
+                );
+            }
+
+            // Final Message
+            if (response.final) {
+                structuredMessages.push({ text: response.final.message, sender: "bot" });
+            }
+
+            setMessages((prevMessages) => [...prevMessages, ...structuredMessages]);
         } catch (err) {
             console.error(err);
             const errorMessage = {
@@ -55,12 +95,19 @@ function App() {
             </header>
             <div className="chat-container">
                 <div className="messages">
-                    {messages.map((message, index) => (
-                        <div key={index} className={`message ${message.sender}`}>
-                            {message.sender === "bot" && <FaRobot className="bot-icon" />}
-                            {message.text}
-                        </div>
-                    ))}
+                    {messages.map((message, index) =>
+                        message.sender === "products" ? (
+                            <div key={index} className={`message ${message.sender}`}>
+                                <h5>{message.title}</h5>
+                                <p>{message.description}</p>
+                            </div>
+                        ) : (
+                            <div key={index} className={`message ${message.sender}`}>
+                                {message.sender === "bot" && <FaRobot className="bot-icon" />}
+                                {message.text}
+                            </div>
+                        )
+                    )}
                     {loading && (
                         <div className="message bot">
                             <div className="typing-indicator">

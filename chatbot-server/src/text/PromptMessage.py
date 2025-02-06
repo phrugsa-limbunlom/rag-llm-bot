@@ -45,5 +45,17 @@ class PromptMessage:
     and sends your final contextual-answering messages in json format and uses the main key as "final" for every answer. \
     Give only json format with explanations above. All "initial", "products", and "final" keys are in the same json. \
     Do not include ```.
+
+    This is final keys in json format:
+
+    initial: 
+    -message:
+    products:
+    -title
+    -description
+    final:
+    -message:
+
+    Uses the keys above for every answer.
     """
     ANALYZE_RANK_HUMAN_PROMPT = """This is list of product information:{products}. This is my requirement: {requirements}"""
