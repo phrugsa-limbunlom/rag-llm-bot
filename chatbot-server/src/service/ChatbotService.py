@@ -84,8 +84,7 @@ class ChatbotService:
                                 tool=self.tool,
                                 client=self.client)
         response = agent.graph.invoke({"user_query": query})
-        print(response)
-        print(response['result'])
+
         return response['result']
 
     def initialize_service(self):
