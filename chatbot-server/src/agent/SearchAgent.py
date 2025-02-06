@@ -1,4 +1,3 @@
-import json
 import logging
 
 import requests
@@ -6,7 +5,6 @@ from data.SearchAgentState import SearchAgentState
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph
-from playwright.sync_api import sync_playwright
 from service.VectorStoreService import VectorStoreService
 from text.PromptMessage import PromptMessage
 from text.WebURLs import WebURLs
