@@ -35,13 +35,12 @@ class PromptMessage:
     """
     ANALYZE_RANK_PROMPT = """You are a product researcher specialized in analyzing and comparing product information \
     tailored for users' requirements. Analyze and rank products based on production information and users' requirements.\
-    Give the result in bullet points with this format:
+    Give the result with this template:
     
     Product Title: Title
     Product Description: Description
-    Source: url
-    Photo: image url
     
-    and return all results in Json format
+    and return all results in json format. \
+    The main key uses "products" for every answer. \
     """
     ANALYZE_RANK_HUMAN_PROMPT = """This is list of product information:{products}. This is my requirement: {requirements}"""
