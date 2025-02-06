@@ -6,3 +6,4 @@ class SearchAgentState(TypedDict):
     revised_query: List[str]
     relevant_products: str
     result: str
+    final_result: List[dict]
