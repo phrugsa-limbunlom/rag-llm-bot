@@ -1,4 +1,7 @@
 <h1 align="center"> PickSmart 🛒 </h1>
+<div align="center">
+<img alt="Langchain" src="https://img.shields.io/badge/-Langchain-013243?style=flat&logo=langchain&logoColor=white"> <img alt="Langgraph" src="https://img.shields.io/badge/-Langgraph-013243?style=flat&logo=Langgraph&logoColor=white"> <img alt="Tavily" src="https://img.shields.io/badge/-Tavily-231F20?style=flat&logo=Tavily&logoColor=white"> <img alt="Chroma" src="https://img.shields.io/badge/-Chroma-231F20?style=flat&logo=chroma&logoColor=white"><img alt="Tavily" src="https://img.shields.io/badge/-Groq-231F20?style=flat&logo=Groq&logoColor=white"><img alt="FastAPI" src="https://img.shields.io/badge/-Fastapi-009688?style=flat&logo=Fastapi&logoColor=white"> <img alt="Kafka" src="https://img.shields.io/badge/-Kafka-231F20?style=flat&logo=kafka&logoColor=white">
+</div>
 <br>
 <p align="center">
 AI-powered chatbot for real-time product search with contextual question-answering and personalized product recommendations empowered by the intelligent search agent and RAG system.
@@ -30,8 +33,6 @@ AI-powered chatbot for real-time product search with contextual question-answeri
 https://github.com/user-attachments/assets/04dfc77b-18fb-4dbc-b85c-22152af938ed
 
 ## Tech Stack
-<img alt="Langchain" src="https://img.shields.io/badge/-langchain-013243?style=flat&logo=langchain&logoColor=white"> <img alt="Langgraph" src="https://img.shields.io/badge/-Langgraph-013243?style=flat&logo=Langgraph&logoColor=white"> <img alt="FastAPI" src="https://img.shields.io/badge/-Fastapi-013243?style=flat&logo=Fastapi&logoColor=white">
-
 ⚛️ **Frontend**: React
 
 🚀 **Backend**: FastAPI
