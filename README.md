@@ -77,7 +77,7 @@ Configure API keys in the `.env` file:
     GROQ_API_KEY="<API_KEY>"
     TAVILY_API_KEY="<API_KEY>"
    ```
-Configure Embedding model and LLM model in `model.yaml` file:
+Configure the Embedding model and LLM model in `model.yaml` file:
    ```env
    LLM: <LLM_MODEL>
    EMBEDDING: <EMBEDDING_MODEL>
@@ -85,18 +85,27 @@ Configure Embedding model and LLM model in `model.yaml` file:
 
 ## Running with Docker
 
-Skip the installation and setup by running all servers in Docker. The website is hosted on `localhost:3000`.
+Skip manual installation and configuration by deploying all services in Docker containers. The application will be hosted on `localhost:3000`.
 
-```bash
-cd PickSmart
-docker-compose up --build
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/phrugsa-limbunlom/PickSmart.git
+   cd PickSmart
+   ```
+2. Create a Docker network called  `chatbot-network`:
+   ```bash
+   docker network create chatbot-network
+   ```
+3. Build and launch all services using Docker Compose:
 
-
+   ```bash
+   docker-compose up --build
+   ```
+   
 ## Installation & Setup
 1. Clone the repository:
    ```bash
-   git https://github.com/phrugsa-limbunlom/PickSmart.git
+   git clone https://github.com/phrugsa-limbunlom/PickSmart.git
    cd PickSmart
    ```
 
