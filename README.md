@@ -4,7 +4,7 @@
 </div>
 <br>
 <p align="center">
-AI-powered chatbot for real-time product search with contextual question-answering and personalized product recommendations empowered by the intelligent search agent and RAG system.
+AI-powered shopping assistant for real-time product search with contextual question-answering and personalized product recommendations empowered by the intelligent search agent and RAG system.
 </p>
 <br>
 
